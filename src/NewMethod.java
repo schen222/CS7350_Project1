@@ -16,6 +16,8 @@ public class NewMethod{
     private int M; // Number of distinct pair-wise course conflicts
     private int T; // Total number of pair-wise course conflicts
 
+    int[] attended_course;
+
     int[][] check_box;
 
     public NewMethod(){
@@ -26,6 +28,7 @@ public class NewMethod{
         output();
         long endTime = System.nanoTime();
         System.out.println("It took " + (endTime - startTime) + " nanoseconds");
+        System.out.println(Arrays.toString(attended_course));
     }
 
     private void set_variables(){
@@ -39,6 +42,7 @@ public class NewMethod{
         P = new int[num_offered_course + 1];
         M = 0;
         T = 0;
+        attended_course = new int[num_offered_course+1];
     }
 
     private void identify_distribution(){
@@ -62,8 +66,8 @@ public class NewMethod{
     }
 
     private void skewed_distribution(){
-        int prob_first_class = (100 + (num_offered_course - 1) * num_offered_course / 2) / num_offered_course;
-        int[] prob_each_class = new int[num_offered_course + 1];
+        double prob_first_class = (100 + (double)(num_offered_course - 1) * num_offered_course / 2) / (double)num_offered_course;
+        double[] prob_each_class = new double[num_offered_course + 1];
         for(int i=2; i<num_offered_course+1; i++){
             prob_each_class[i] = prob_first_class - (i-1);
         }
@@ -71,7 +75,7 @@ public class NewMethod{
             random_pool.add(1);
         }
         for(int i=2; i<num_offered_course+1; i++){
-            for(int j=0; j<prob_each_class[i]; j++){
+            for(int j=0; j<prob_each_class[i]*100; j++){
                 random_pool.add(i);
             }
         }
@@ -135,6 +139,7 @@ public class NewMethod{
                     class_picked = (int)(Math.random() * num_offered_course) + 1;
                 }
                 class_has_been_picked.add(class_picked); //Add all distinctly picked classes into list
+                attended_course[class_picked]++;
             }
 
             check_conflict();
@@ -142,6 +147,7 @@ public class NewMethod{
     }
 
     private void pick_random_under_other_distribution(){
+
         for(int student = 0; student < num_student; student++){ // choose class(s) for each student
 
             class_has_been_picked = new ArrayList<Integer>();
@@ -153,6 +159,7 @@ public class NewMethod{
                     class_picked = (int)(Math.random() * random_pool.size());
                 }
                 class_has_been_picked.add(random_pool.get(class_picked)); //Add all distinctly picked classes into list
+                attended_course[random_pool.get(class_picked)]++;
             }
 
             check_conflict();
