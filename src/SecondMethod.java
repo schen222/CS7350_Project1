@@ -9,7 +9,7 @@ public class SecondMethod {
     public String DIST; // UNIFORM,SKEWED,4-TIERED,NORMAL
     private List<Integer> class_has_been_picked;
     private List<Integer> random_pool;
-    private List<String> E; // Adjacency list of distinct course conflicts (length = 2M)
+    private List<Integer> E; // Adjacency list of distinct course conflicts (length = 2M)
     private int[] P; // Pointer for each Course I...
     private int M; // Number of distinct pair-wise course conflicts
     private int T; // Total number of pair-wise course conflicts
@@ -33,7 +33,7 @@ public class SecondMethod {
         DIST = nCourse.getDIST();
         class_has_been_picked = new ArrayList<Integer>();
         random_pool = new ArrayList<Integer>();
-        E = new ArrayList<String>();
+        E = new ArrayList<Integer>();
         P = new int[num_offered_course + 1];
         M = 0;
         T = 0;
@@ -173,12 +173,22 @@ public class SecondMethod {
         }
     }
 
-//    private void after_checking_conflict(){
-//        sorting();
-//        find_P();
-//        final_adjustment();
-//    }
+    private void after_checking_conflict(){
+        add_conflict_to_E();
+    }
 
+    private void add_conflict_to_E(){
+        int current_position = 0;
+        for(int i=1; i<=num_offered_course; i++){
+            if(!lists_for_all_courses.get(i).isEmpty()){
+                P[i] = current_position;
+                for(int j=0; j<lists_for_all_courses.get(i).size(); j++){
+                    E.add(lists_for_all_courses.get(i).get(j));
+                    current_position++;
+                }
+            }
+        }
+    }
     /*
         This function sorts the ArrayList E order by first character of each element,
         then the output would look like 12,13,21,24,31,34...
