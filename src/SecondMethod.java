@@ -158,12 +158,18 @@ public class SecondMethod {
     }
 
     /*
-        This function checks if conflicts are duplicated (already in ArrayList E). If not, these conflicts
-        (includes its reserve like 12,21) would be added into unsorted ArrayList E.
+        This function checks if conflicts are duplicated (already in ArrayLists). If not, these conflicts
+        would be added into corresponding ArrayList.
      */
     private void check_conflict(){
         for(int i = 0; i < num_course_per_student; i++){
-
+            for(int j = 0; j < num_course_per_student; j++){
+                if(j != i){
+                    if(!lists_for_all_courses.get(class_has_been_picked.get(i)).contains(class_has_been_picked.get(j))){
+                        lists_for_all_courses.get(class_has_been_picked.get(i)).add(class_has_been_picked.get(j));
+                    }
+                }
+            }
         }
     }
 
