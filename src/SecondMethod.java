@@ -7,7 +7,7 @@ public class SecondMethod {
     public int num_student; // Number of students (MAX = 100,000)
     public int num_course_per_student; // Number of courses per student (MAX = C)
     public String DIST; // UNIFORM,SKEWED,4-TIERED,NORMAL
-    private List<String> class_has_been_picked;
+    private List<Integer> class_has_been_picked;
     private List<Integer> random_pool;
     private List<String> E; // Adjacency list of distinct course conflicts (length = 2M)
     private int[] P; // Pointer for each Course I...
@@ -31,7 +31,7 @@ public class SecondMethod {
         num_student = nCourse.getNum_student();
         num_course_per_student = nCourse.getNum_course_per_student();
         DIST = nCourse.getDIST();
-        class_has_been_picked = new ArrayList<String>();
+        class_has_been_picked = new ArrayList<Integer>();
         random_pool = new ArrayList<Integer>();
         E = new ArrayList<String>();
         P = new int[num_offered_course + 1];
@@ -124,7 +124,7 @@ public class SecondMethod {
     private void pick_random_under_uniform(){
         for(int student = 0; student < num_student; student++){ // choose class(s) for each student
 
-            class_has_been_picked = new ArrayList<String>();
+            class_has_been_picked = new ArrayList<Integer>();
             for(int class_per_student = 0; class_per_student < num_course_per_student; class_per_student++){
 
                 int class_picked = (int)(Math.random() * num_offered_course) + 1; // Randomly choose a class
@@ -132,7 +132,7 @@ public class SecondMethod {
                 while(class_has_been_picked.contains(Integer.toString(class_picked))){ // Check if the one is duplicated
                     class_picked = (int)(Math.random() * num_offered_course) + 1;
                 }
-                class_has_been_picked.add(Integer.toString(class_picked)); //Add all distinctly picked classes into list
+                class_has_been_picked.add(class_picked); //Add all distinctly picked classes into list
             }
 
             check_conflict();
@@ -142,7 +142,7 @@ public class SecondMethod {
     private void pick_random_under_other_distribution(){
         for(int student = 0; student < num_student; student++){ // choose class(s) for each student
 
-            class_has_been_picked = new ArrayList<String>();
+            class_has_been_picked = new ArrayList<Integer>();
             for(int class_per_student = 0; class_per_student < num_course_per_student; class_per_student++){
 
                 int class_picked = (int)(Math.random() * random_pool.size()); // Randomly choose a class from 1-10000
@@ -150,7 +150,7 @@ public class SecondMethod {
                 while(class_has_been_picked.contains(Integer.toString(random_pool.get(class_picked)))){ // Check if the one is duplicated
                     class_picked = (int)(Math.random() * random_pool.size());
                 }
-                class_has_been_picked.add(Integer.toString(random_pool.get(class_picked))); //Add all distinctly picked classes into list
+                class_has_been_picked.add(random_pool.get(class_picked)); //Add all distinctly picked classes into list
             }
 
             check_conflict();
@@ -163,14 +163,7 @@ public class SecondMethod {
      */
     private void check_conflict(){
         for(int i = 0; i < num_course_per_student; i++){
-            for(int j = i+1; j < num_course_per_student; j++){
-                String temp1 = class_has_been_picked.get(i)+class_has_been_picked.get(j);
-                String reverse_temp1 = class_has_been_picked.get(j)+class_has_been_picked.get(i);
-                if(!E.contains(temp1)){
-                    E.add(temp1);
-                    E.add(reverse_temp1);
-                }
-            }
+
         }
     }
 
