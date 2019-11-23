@@ -105,6 +105,7 @@ public class SecondMethod {
             }
         }
         pick_random_under_other_distribution();
+        after_checking_conflict();
     }
 
     private void normal_distribution(){
@@ -119,6 +120,7 @@ public class SecondMethod {
         }
 
         pick_random_under_other_distribution();
+        after_checking_conflict();
     }
 
     private void pick_random_under_uniform(){
@@ -137,6 +139,7 @@ public class SecondMethod {
 
             check_conflict();
         }
+        after_checking_conflict();
     }
 
     private void pick_random_under_other_distribution(){
@@ -155,6 +158,7 @@ public class SecondMethod {
 
             check_conflict();
         }
+        after_checking_conflict();
     }
 
     /*
@@ -163,13 +167,22 @@ public class SecondMethod {
      */
     private void check_conflict(){
         for(int i = 0; i < num_course_per_student; i++){
-            for(int j = 0; j < num_course_per_student; j++){
-                if(j != i){
-                    if(!lists_for_all_courses.get(class_has_been_picked.get(i)).contains(class_has_been_picked.get(j))){
-                        lists_for_all_courses.get(class_has_been_picked.get(i)).add(class_has_been_picked.get(j));
-                    }
+            int current_position = 0;
+            boolean reach_end = false;
+            if(current_position != i && reach_end == false){
+                lists_for_all_courses.get(class_has_been_picked.get(i)).add(class_has_been_picked.get(current_position));
+                current_position++;
+                if(current_position > 5){
+                    reach_end = true;
                 }
             }
+            else if(current_position == i && reach_end == false){
+                current_position++;
+                if(current_position > 5){
+                    reach_end = true;
+                }
+            }
+
         }
     }
 
@@ -188,6 +201,8 @@ public class SecondMethod {
                 }
             }
         }
+        M = E.size()/2;
+        T = (num_course_per_student * (num_course_per_student-1) / 2) * num_student;
     }
     /*
         This function sorts the ArrayList E order by first character of each element,

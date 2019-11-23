@@ -20,12 +20,16 @@ public class NewMethod{
 
     int[][] check_box;
 
+    // variables for part2 below
+    int degree[];
+
     public NewMethod(){
         long startTime = System.nanoTime();
         nCourse = new Course();
         set_variables();
         identify_distribution();
         output();
+        getDegree();
         long endTime = System.nanoTime();
         System.out.println("It took " + (endTime - startTime) + " nanoseconds");
         System.out.println(Arrays.toString(attended_course));
@@ -35,6 +39,7 @@ public class NewMethod{
         num_offered_course = nCourse.getNum_offered_course();
         num_student = nCourse.getNum_student();
         num_course_per_student = nCourse.getNum_course_per_student();
+        check_box = new int[num_offered_course+1][num_offered_course+1];
         DIST = nCourse.getDIST();
         class_has_been_picked = new ArrayList<Integer>();
         random_pool = new ArrayList<Integer>();
@@ -43,6 +48,7 @@ public class NewMethod{
         M = 0;
         T = 0;
         attended_course = new int[num_offered_course+1];
+        degree = new int[num_offered_course];
     }
 
     private void identify_distribution(){
@@ -171,7 +177,6 @@ public class NewMethod{
         (includes its reserve like 12,21) would be added into unsorted ArrayList E.
      */
     private void check_conflict(){
-        check_box = new int[num_offered_course+1][num_offered_course+1];
         for(int i=0; i<num_course_per_student; i++){
             for(int j=i+1; j<num_course_per_student; j++){
                 check_box[class_has_been_picked.get(i)][class_has_been_picked.get(j)] = 1;
@@ -195,6 +200,13 @@ public class NewMethod{
         T = (num_course_per_student * (num_course_per_student-1) / 2) * num_student;
     }
 
+    private void getDegree(){
+        for(int i=1; i<num_offered_course+1; i++){
+            for(int j=1; j<num_offered_course+1; j++){
+                if(check_box[i][j] == 1) {degree[i]++;}
+            }
+        }
+    }
 //    private void after_checking_conflict(){
 //        sorting();
 //        find_P();
