@@ -26,10 +26,10 @@ public class Distribution {
     }
 
     private void set_variables(){
-        num_offered_course = nCourse.getNum_offered_course();
-        num_student = nCourse.getNum_student();
-        num_course_per_student = nCourse.getNum_course_per_student();
-        DIST = nCourse.getDIST();
+        num_offered_course = nCourse.getNumOfferedCourse();
+        num_student = nCourse.getNumStudent();
+        num_course_per_student = nCourse.getNumCoursePerStudent();
+        DIST = nCourse.getDistribution();
         class_has_been_picked = new ArrayList<String>();
         random_pool = new ArrayList<Integer>();
         E = new ArrayList<String>();

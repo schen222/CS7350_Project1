@@ -1,269 +1,302 @@
 import java.util.*;
 
+
+/**
+ * Algorithm Project
+ *
+ * @author Siyuan Chen
+ * @date 2019/12/05
+ */
+
 public class NewMethod{
 
+    private Course nCourse;
 
+    /**
+     * Number of courses being offered (MAX = 10,000)
+     */
+    private int numOfferedCourse;
 
-    public Course nCourse;
-    public int num_offered_course; // Number of courses being offered (MAX = 10,000)
-    public int num_student; // Number of students (MAX = 100,000)
-    public int num_course_per_student; // Number of courses per student (MAX = C)
-    public String DIST; // UNIFORM,SKEWED,4-TIERED,NORMAL
-    private List<Integer> class_has_been_picked;
-    private List<Integer> random_pool;
-    private List<Integer> E; // Adjacency list of distinct course conflicts (length = 2M)
-    private int[] P; // Pointer for each Course I...
-    private int M; // Number of distinct pair-wise course conflicts
-    private int T; // Total number of pair-wise course conflicts
+    /**
+     * Number of students (MAX = 100,000)
+     */
+    private int numStudent;
 
-    int[] attended_course;
+    /**
+     * Number of courses per student (MAX = C)
+     */
+    private int numCoursePerStudent;
 
-    int[][] check_box;
+    /**
+     * UNIFORM,SKEWED,4-TIERED,NORMAL
+     */
+    private String distribution;
+    private List<Integer> classHasBeenPicked;
+    private List<Integer> randomPool;
 
-    // variables for part2 below
-    int degree[];
+    /**
+     * Adjacency list of distinct course conflicts (length = 2M)
+     */
+    private List<Integer> E;
 
-    public NewMethod(){
+    /**
+     * Pointer for each Course I...
+     */
+    private int[] P;
+
+    /**
+     * Number of distinct pair-wise course conflicts
+     */
+    private int M;
+
+    /**
+     * Total number of pair-wise course conflicts
+     */
+    private int T;
+
+    private int[] attendedCourse;
+
+    private int[][] checkBox;
+
+    /**
+     * variables for part2 below
+     * Used to store the degree of each node(course)
+     */
+    private int[] degree;
+
+     /**
+     * Used to store node ordered by degree from big to small
+     */
+    private LinkedList<Integer> degreeOrder;
+
+    private NewMethod(){
         long startTime = System.nanoTime();
         nCourse = new Course();
-        set_variables();
-        identify_distribution();
+        setVariables();
+        identifyDistribution();
         output();
         getDegree();
         long endTime = System.nanoTime();
         System.out.println("It took " + (endTime - startTime) + " nanoseconds");
-        System.out.println(Arrays.toString(attended_course));
+        System.out.println(Arrays.toString(attendedCourse));
     }
 
-    private void set_variables(){
-        num_offered_course = nCourse.getNum_offered_course();
-        num_student = nCourse.getNum_student();
-        num_course_per_student = nCourse.getNum_course_per_student();
-        check_box = new int[num_offered_course+1][num_offered_course+1];
-        DIST = nCourse.getDIST();
-        class_has_been_picked = new ArrayList<Integer>();
-        random_pool = new ArrayList<Integer>();
+    /**
+     * This function is used to initialize all variables that are going to be used in this program
+     */
+    private void setVariables(){
+
+        //Part 1
+        numOfferedCourse = nCourse.getNumOfferedCourse();
+        numStudent = nCourse.getNumStudent();
+        numCoursePerStudent = nCourse.getNumCoursePerStudent();
+        checkBox = new int[numOfferedCourse +1][numOfferedCourse +1];
+        distribution = nCourse.getDistribution();
+        classHasBeenPicked = new ArrayList<Integer>();
+        randomPool = new ArrayList<Integer>();
         E = new ArrayList<Integer>();
-        P = new int[num_offered_course + 1];
+        P = new int[numOfferedCourse + 1];
         M = 0;
         T = 0;
-        attended_course = new int[num_offered_course+1];
-        degree = new int[num_offered_course];
+        attendedCourse = new int[numOfferedCourse +1];
+
+        //Part 2
+        degree = new int[numOfferedCourse];
+        degreeOrder = new LinkedList<Integer>();
     }
 
-    private void identify_distribution(){
-        if("UNIFORM".equals(DIST)) {
-            uniform_distribution();
+    private void identifyDistribution(){
+        if("UNIFORM".equals(distribution)) {
+            uniformDistribution();
         }
-        else if("SKEWED".equals(DIST)) {
-            skewed_distribution();
+        else if("SKEWED".equals(distribution)) {
+            skewedDistribution();
         }
-        else if("4-TIERED".equals(DIST)) {
-            four_tiered_distribution();
+        else if("4-TIERED".equals(distribution)) {
+            fourTieredDistribution();
         }
-        else if("NORMAL".equals(DIST)) {
-            normal_distribution();
+        else if("NORMAL".equals(distribution)) {
+            normalDistribution();
         }
     }
 
-    private void uniform_distribution(){
-        pick_random_under_uniform();
-        after_checking_conflict();
+    private void uniformDistribution(){
+        pickRandomUnderUniform();
+        afterCheckingConflict();
     }
 
-    private void skewed_distribution(){
-        double prob_first_class = (100 + (double)(num_offered_course - 1) * num_offered_course / 2) / (double)num_offered_course;
-        double[] prob_each_class = new double[num_offered_course + 1];
-        for(int i=2; i<num_offered_course+1; i++){
-            prob_each_class[i] = prob_first_class - (i-1);
+    private void skewedDistribution(){
+        double probFirstClass = (100 + (double)(numOfferedCourse - 1) * numOfferedCourse / 2) / (double) numOfferedCourse;
+        double[] probEachClass = new double[numOfferedCourse + 1];
+        for(int i = 2; i< numOfferedCourse +1; i++){
+            probEachClass[i] = probFirstClass - (i-1);
         }
-        for(int times=0; times<prob_first_class; times++){
-            random_pool.add(1);
+        for(int times=0; times<probFirstClass; times++){
+            randomPool.add(1);
         }
-        for(int i=2; i<num_offered_course+1; i++){
-            for(int j=0; j<prob_each_class[i]*100; j++){
-                random_pool.add(i);
+        for(int i = 2; i< numOfferedCourse +1; i++){
+            for(int j=0; j<probEachClass[i]*100; j++){
+                randomPool.add(i);
             }
         }
 
-        pick_random_under_other_distribution();
-        after_checking_conflict();
+        pickRandomUnderOtherDistribution();
+        afterCheckingConflict();
     }
 
-    private void four_tiered_distribution(){
-        double first_25 = (double)num_offered_course/(double)4;
-        double second_25 = first_25 * 2;
-        double third_25 = first_25 * 3;
+    private void fourTieredDistribution(){
+        double first25 = (double) numOfferedCourse /(double)4;
+        double second25 = first25 * 2;
+        double third25 = first25 * 3;
 
-        double[] prob_each_class = new double[num_offered_course + 1];
-        for(int i=1; i<num_offered_course+1; i++){
-            if(i<=first_25){
-                prob_each_class[i] = 40 / first_25;
+        double[] probEachClass = new double[numOfferedCourse + 1];
+        for(int i = 1; i< numOfferedCourse +1; i++){
+            if(i<=first25){
+                probEachClass[i] = 40 / first25;
             }
-            else if(i>first_25 && i<=second_25){
-                prob_each_class[i] = 30 / (second_25 - first_25);
+            else if(i>first25 && i<=second25){
+                probEachClass[i] = 30 / (second25 - first25);
             }
-            else if(i>second_25 && i<third_25){
-                prob_each_class[i] = 20 / (third_25 - second_25);
+            else if(i>second25 && i<third25){
+                probEachClass[i] = 20 / (third25 - second25);
             }
-            else if(i>third_25 && i<=num_offered_course){
-                prob_each_class[i] = 10 / (num_offered_course - third_25);
+            else if(i>third25 && i<= numOfferedCourse){
+                probEachClass[i] = 10 / (numOfferedCourse - third25);
             }
-            for(int times=0; times<prob_each_class[i]*10000; times++){
-                random_pool.add(i);
-            }
-        }
-        pick_random_under_other_distribution();
-        after_checking_conflict();
-    }
-
-    private void normal_distribution(){
-        double normal_median = (num_offered_course - 1) / 2;
-
-        Double[] prob_each_class = new Double[num_offered_course + 1];
-        for(int i=1; i<num_offered_course+1; i++){
-            prob_each_class[i] = ((1/(Math.sqrt(2*Math.PI)))*Math.exp((-Math.pow(i-normal_median,2))/2));
-            for(int times=0; times<prob_each_class[i]*100; times++){
-                random_pool.add(i);
+            for(int times=0; times<probEachClass[i]*10000; times++){
+                randomPool.add(i);
             }
         }
+        pickRandomUnderOtherDistribution();
+        afterCheckingConflict();
+    }
 
-        pick_random_under_other_distribution();
-        after_checking_conflict();
+    private void normalDistribution(){
+        double normalMedian = (double)(numOfferedCourse - 1) / 2;
+
+        Double[] probEachClass = new Double[numOfferedCourse + 1];
+        for(int i = 1; i< numOfferedCourse +1; i++){
+            probEachClass[i] = ((1/(Math.sqrt(2*Math.PI)))*Math.exp((-Math.pow(i-normalMedian,2))/2));
+            for(int times=0; times<probEachClass[i]*100; times++){
+                randomPool.add(i);
+            }
+        }
+
+        pickRandomUnderOtherDistribution();
+        afterCheckingConflict();
 
     }
 
-    private void pick_random_under_uniform(){
-        for(int student = 0; student < num_student; student++){ // choose class(s) for each student
+    private void pickRandomUnderUniform(){
 
-            class_has_been_picked = new ArrayList<Integer>();
-            for(int class_per_student = 0; class_per_student < num_course_per_student; class_per_student++){
+        /*
+         * choose class(s) for each student
+         */
+        for(int student = 0; student < numStudent; student++){
 
-                int class_picked = (int)(Math.random() * num_offered_course) + 1; // Randomly choose a class
+            classHasBeenPicked = new ArrayList<Integer>();
+            for(int classPerStudent = 0; classPerStudent < numCoursePerStudent; classPerStudent++){
 
-                while(class_has_been_picked.contains(class_picked)){ // Check if the one is duplicated
-                    class_picked = (int)(Math.random() * num_offered_course) + 1;
+                /*
+                 * Randomly choose a class
+                 */
+                int classPicked = (int)(Math.random() * numOfferedCourse) + 1;
+
+                /*
+                 * Check if the one is duplicated
+                 */
+                while(classHasBeenPicked.contains(classPicked)){
+                    classPicked = (int)(Math.random() * numOfferedCourse) + 1;
                 }
-                class_has_been_picked.add(class_picked); //Add all distinctly picked classes into list
-                attended_course[class_picked]++;
+
+                /*
+                 * Add all distinctly picked classes into list
+                 */
+                classHasBeenPicked.add(classPicked);
+                attendedCourse[classPicked]++;
             }
 
-            check_conflict();
+            checkConflict();
         }
     }
 
-    private void pick_random_under_other_distribution(){
+    private void pickRandomUnderOtherDistribution(){
 
-        for(int student = 0; student < num_student; student++){ // choose class(s) for each student
+        /*
+         * choose class(s) for each student
+         */
+        for(int student = 0; student < numStudent; student++){
 
-            class_has_been_picked = new ArrayList<Integer>();
-            for(int class_per_student = 0; class_per_student < num_course_per_student; class_per_student++){
+            classHasBeenPicked = new ArrayList<Integer>();
+            for(int classPerStudent = 0; classPerStudent < numCoursePerStudent; classPerStudent++){
 
-                int class_picked = (int)(Math.random() * random_pool.size()); // Randomly choose a class from 1-10000
+                /*
+                 * Randomly choose a class from 1-10000
+                 */
+                int classPicked = (int)(Math.random() * randomPool.size());
 
-                while(class_has_been_picked.contains(random_pool.get(class_picked))){ // Check if the one is duplicated
-                    class_picked = (int)(Math.random() * random_pool.size());
+                /*
+                 * Check if the one is duplicated
+                 */
+                while(classHasBeenPicked.contains(randomPool.get(classPicked))){
+                    classPicked = (int)(Math.random() * randomPool.size());
                 }
-                class_has_been_picked.add(random_pool.get(class_picked)); //Add all distinctly picked classes into list
-                attended_course[random_pool.get(class_picked)]++;
+
+                /*
+                 * Add all distinctly picked classes into list
+                 */
+                classHasBeenPicked.add(randomPool.get(classPicked));
+                attendedCourse[randomPool.get(classPicked)]++;
             }
 
-            check_conflict();
+            checkConflict();
         }
     }
 
-    /*
-        This function checks if conflicts are duplicated (already in ArrayList E). If not, these conflicts
-        (includes its reserve like 12,21) would be added into unsorted ArrayList E.
+    /**
+     *  This function checks if conflicts are duplicated (already in ArrayList E). If not, these conflicts
+     *  (includes its reserve like 12,21) would be added into unsorted ArrayList E.
      */
-    private void check_conflict(){
-        for(int i=0; i<num_course_per_student; i++){
-            for(int j=i+1; j<num_course_per_student; j++){
-                check_box[class_has_been_picked.get(i)][class_has_been_picked.get(j)] = 1;
-                check_box[class_has_been_picked.get(j)][class_has_been_picked.get(i)] = 1;
+    private void checkConflict(){
+        for(int i = 0; i< numCoursePerStudent; i++){
+            for(int j = i+1; j< numCoursePerStudent; j++){
+                checkBox[classHasBeenPicked.get(i)][classHasBeenPicked.get(j)] = 1;
+                checkBox[classHasBeenPicked.get(j)][classHasBeenPicked.get(i)] = 1;
             }
         }
     }
 
-    private void after_checking_conflict(){
-        int current_position = 0;
-        for(int i=1; i<num_offered_course+1; i++){
-            P[i] = current_position;
-            for(int j=1; j<num_offered_course+1; j++){
-                if(check_box[i][j]==1){
+    private void afterCheckingConflict(){
+        int currentPosition = 0;
+        for(int i = 1; i< numOfferedCourse +1; i++){
+            P[i] = currentPosition;
+            for(int j = 1; j< numOfferedCourse +1; j++){
+                if(checkBox[i][j]==1){
                     E.add(j);
-                    current_position++;
+                    currentPosition++;
                 }
             }
         }
         M = E.size()/2;
-        T = (num_course_per_student * (num_course_per_student-1) / 2) * num_student;
+        T = (numCoursePerStudent * (numCoursePerStudent -1) / 2) * numStudent;
     }
 
     private void getDegree(){
-        for(int i=1; i<num_offered_course+1; i++){
-            for(int j=1; j<num_offered_course+1; j++){
-                if(check_box[i][j] == 1) {degree[i]++;}
+        for(int i = 1; i< numOfferedCourse +1; i++){
+            for(int j = 1; j< numOfferedCourse +1; j++){
+                if(checkBox[i][j] == 1) {degree[i]++;}
             }
         }
     }
-//    private void after_checking_conflict(){
-//        sorting();
-//        find_P();
-//        final_adjustment();
-//    }
 
-    /*
-        This function sorts the ArrayList E order by first character of each element,
-        then the output would look like 12,13,21,24,31,34...
-     */
-//    private void sorting(){
-//        Collections.sort(E);
-//        System.out.println(E);
-//    }
-
-    /*
-        After sorting, the E looks like 1,1,1,1,1,2,2,3,3,3,4...(Only shows the first character)
-        P[1] points at where 1 firstly appears which is E[0],
-        For other values, like 2, the way to figure out where 2 firstly appears is check its left element, if it is 2
-        then the one is not I am looking for; if it is 1, which means it is 2 firstly appears
-     */
-//    private void find_P(){
-//        P[0] = -1;
-//        for(int i=0; i<E.size();i++){
-//            if(i==0){
-//                P[Character.getNumericValue(E.get(i).charAt(0))] = 0;
-//            }
-//            else if(i>0){
-//                if(E.get(i).charAt(0) != E.get(i-1).charAt(0)){
-//                    P[Character.getNumericValue(E.get(i).charAt(0))] = i;
-//                }
-//            }
-//        }
-//    }
-
-    /*
-        Since I only need one class as our each element in List E and I have used function find_P to set each pointer
-        in P[], I just remove the first character of each element in List E.
-        And I calculate some values for outputs
-     */
-//    private void final_adjustment(){
-//        for(int i=0; i<E.size(); i++){
-//            String replace = E.get(i).substring(1); // Store a string without the first character in original string
-//            E.set(i,replace); // Replace the element with new string
-//        }
-//        M = E.size()/2;
-//        T = (num_course_per_student * (num_course_per_student-1) / 2) * num_student;
-//    }
-
-    /*
-        This function prints out required output
+    /**
+     *  This function prints out required output
      */
     private void output(){
-        System.out.println("There is/are " + num_offered_course + " course(s) being offered");
-        System.out.println("There is/are " + num_student + " student(s)");
-        System.out.println("There is/are " + num_course_per_student + " course(s) per student");
-        System.out.println("The distribution chosen is " + DIST);
+        System.out.println("There is/are " + numOfferedCourse + " course(s) being offered");
+        System.out.println("There is/are " + numStudent + " student(s)");
+        System.out.println("There is/are " + numCoursePerStudent + " course(s) per student");
+        System.out.println("The distribution chosen is " + distribution);
         System.out.println("We have " + M + " distinct pair-wise course conflicts");
         System.out.println("We have total " + T + " pair-wise course conflicts");
         System.out.println("Adjacency list of distinct course conflicts " + E);
@@ -271,7 +304,7 @@ public class NewMethod{
     }
 
     public static void main(String[] args){
-        NewMethod D = new NewMethod();
+        NewMethod d = new NewMethod();
     }
 }
 
