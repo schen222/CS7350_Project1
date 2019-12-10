@@ -69,13 +69,17 @@ public class NewMethod{
      */
     private LinkedList<Integer> degreeOrder;
 
+    private String ordering;
+
+    private int[] color;
+
     private NewMethod(){
         long startTime = System.nanoTime();
         nCourse = new Course();
         setVariables();
         identifyDistribution();
         output();
-        getDegree();
+        identifyOrdering();
         long endTime = System.nanoTime();
         System.out.println("It took " + (endTime - startTime) + " nanoseconds");
         System.out.println(Arrays.toString(attendedCourse));
@@ -103,6 +107,7 @@ public class NewMethod{
         //Part 2
         degree = new int[numOfferedCourse];
         degreeOrder = new LinkedList<Integer>();
+        ordering = nCourse.getOrdering();
     }
 
     private void identifyDistribution(){
@@ -287,6 +292,49 @@ public class NewMethod{
                 if(checkBox[i][j] == 1) {degree[i]++;}
             }
         }
+    }
+
+    private void identifyOrdering(){
+        String smallest = "SMALLEST";
+        String powell = "POWELL";
+        String random = "RANDOM";
+        String myChoice = "LARGEST";
+        if(smallest.equals(ordering)){
+            smallestLastOrdering();
+        }
+        else if(powell.equals(ordering)){
+            welshPowellOrdering();
+        }
+        else if(random.equals(ordering)){
+            uniformRandomOrdering();
+        }
+        else if(myChoice.equals(ordering)){
+            largestLastOrdering();
+        }
+    }
+
+    private void smallestLastOrdering(){
+        getDegree();
+    }
+
+    private void welshPowellOrdering(){
+        getDegree();
+        sortDegree();
+        color = new int[degree.length];
+        Arrays.fill(color,0);
+
+    }
+
+    private void sortDegree(){
+
+    }
+
+    private void uniformRandomOrdering(){
+        getDegree();
+    }
+
+    private void largestLastOrdering(){
+        getDegree();
     }
 
     /**

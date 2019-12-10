@@ -21,7 +21,13 @@ public class Course {
      * UNIFORM,SKEWED,4-TIERED,NORMAL(Standard Normal Distribution)
      */
     private String distribution;
-    private String[] validStringInput;
+    private String[] validDistributionInput;
+
+    /**
+     * SMALLEST, POWELL, RANDOM, LARGEST
+     */
+    private String ordering;
+    private String[] validOrderingInput;
 
     public Course(){
         initial();
@@ -33,7 +39,9 @@ public class Course {
         numStudent = 0;
         numCoursePerStudent = 0;
         distribution = "";
-        validStringInput = new String[]{"UNIFORM","SKEWED","4-TIERED","NORMAL"};
+        validDistributionInput = new String[]{"UNIFORM","SKEWED","4-TIERED","NORMAL"};
+        ordering = "";
+        validOrderingInput = new String[]{"SMALLEST","POWELL","RANDOM","LARGEST"};
     }
 
     private void input(){
@@ -67,12 +75,21 @@ public class Course {
 
         myObj = new Scanner(System.in);
         System.out.println("Enter the type of distribution");
-        distribution = checkStringInput(myObj);
+        distribution = checkDistributionInput(myObj);
 
         /*
          * Check input is received
          */
         System.out.println("You Entered " + distribution + " distribution\n");
+
+        myObj = new Scanner(System.in);
+        System.out.println("Enter the type of ordering algorithm");
+        ordering = checkOrderingInput(myObj);
+
+        /*
+         * Check input is received
+         */
+        System.out.println("You Entered " + ordering + " ordering algorithm\n");
     }
 
     private int checkIntInputOne(Scanner myObj){
@@ -165,10 +182,21 @@ public class Course {
         return buffer;
     }
 
-    private String checkStringInput(Scanner myObj){
+    private String checkDistributionInput(Scanner myObj){
         String buffer = myObj.nextLine();
 
-        while(!Arrays.asList(validStringInput).contains(buffer)){
+        while(!Arrays.asList(validDistributionInput).contains(buffer)){
+            System.out.println("Your input is unacceptable. Please enter one of them (UNIFORM,SKEWED,4-TIERED,NORMAL)");
+            myObj = new Scanner(System.in);
+            buffer = myObj.nextLine();
+        }
+        return buffer;
+    }
+
+    private String checkOrderingInput(Scanner myObj){
+        String buffer = myObj.nextLine();
+
+        while(!Arrays.asList(validOrderingInput).contains(buffer)){
             System.out.println("Your input is unacceptable. Please enter one of them (UNIFORM,SKEWED,4-TIERED,NORMAL)");
             myObj = new Scanner(System.in);
             buffer = myObj.nextLine();
@@ -190,5 +218,9 @@ public class Course {
 
     public String getDistribution() {
         return distribution;
+    }
+
+    public String getOrdering(){
+        return ordering;
     }
 }
