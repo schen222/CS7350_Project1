@@ -363,6 +363,7 @@ public class NewMethod{
     private void sortRandomDegree(){
         int arrayLength = degree.length;
         int random;
+        maxDegree = 0;
         for(int i=0; i<arrayLength; i++){
             boolean notAllZero = false;
             for(int j=0; j<arrayLength; j++){
@@ -375,6 +376,9 @@ public class NewMethod{
                 random = (int)(Math.random()*arrayLength);
             }
             if(degree[random] != 0){
+                if(degree[random] > maxDegree){
+                    maxDegree = degree[random];
+                }
                 sortedNode.add(random);
                 degree[random] = 0;
             }
