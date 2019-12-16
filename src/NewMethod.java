@@ -62,7 +62,8 @@ public class NewMethod{
      * variables for part2 below
      * Used to store the degree of each node(course)
      */
-    private int[] degree;
+    private static int[] degree;
+    private static ArrayList<Integer> sortedNode;
 
      /**
      * Used to store node ordered by degree from big to small
@@ -73,13 +74,15 @@ public class NewMethod{
 
     private int[] color;
 
+    private static int maxDegree;
+
     private NewMethod(){
         long startTime = System.nanoTime();
         nCourse = new Course();
         setVariables();
         identifyDistribution();
-        output();
         identifyOrdering();
+        output();
         long endTime = System.nanoTime();
         System.out.println("It took " + (endTime - startTime) + " nanoseconds");
         System.out.println(Arrays.toString(attendedCourse));
@@ -96,17 +99,18 @@ public class NewMethod{
         numCoursePerStudent = nCourse.getNumCoursePerStudent();
         checkBox = new int[numOfferedCourse +1][numOfferedCourse +1];
         distribution = nCourse.getDistribution();
-        classHasBeenPicked = new ArrayList<Integer>();
-        randomPool = new ArrayList<Integer>();
-        E = new ArrayList<Integer>();
+        classHasBeenPicked = new ArrayList<>();
+        randomPool = new ArrayList<>();
+        E = new ArrayList<>();
         P = new int[numOfferedCourse + 1];
         M = 0;
         T = 0;
         attendedCourse = new int[numOfferedCourse +1];
 
         //Part 2
-        degree = new int[numOfferedCourse];
-        degreeOrder = new LinkedList<Integer>();
+        degree = new int[numOfferedCourse+1];
+        sortedNode = new ArrayList<>();
+        degreeOrder = new LinkedList<>();
         ordering = nCourse.getOrdering();
     }
 
@@ -199,7 +203,7 @@ public class NewMethod{
          */
         for(int student = 0; student < numStudent; student++){
 
-            classHasBeenPicked = new ArrayList<Integer>();
+            classHasBeenPicked = new ArrayList<>();
             for(int classPerStudent = 0; classPerStudent < numCoursePerStudent; classPerStudent++){
 
                 /*
@@ -232,7 +236,7 @@ public class NewMethod{
          */
         for(int student = 0; student < numStudent; student++){
 
-            classHasBeenPicked = new ArrayList<Integer>();
+            classHasBeenPicked = new ArrayList<>();
             for(int classPerStudent = 0; classPerStudent < numCoursePerStudent; classPerStudent++){
 
                 /*
@@ -287,11 +291,12 @@ public class NewMethod{
     }
 
     private void getDegree(){
-        for(int i = 1; i< numOfferedCourse +1; i++){
+        for(int i = 1; i < numOfferedCourse +1; i++){
             for(int j = 1; j< numOfferedCourse +1; j++){
                 if(checkBox[i][j] == 1) {degree[i]++;}
             }
         }
+        System.out.println("degree: " + Arrays.toString(degree));
     }
 
     private void identifyOrdering(){
@@ -319,24 +324,99 @@ public class NewMethod{
 
     private void welshPowellOrdering(){
         getDegree();
-        sortDegree();
-        color = new int[degree.length];
-        Arrays.fill(color,0);
-
+        sortDescendingDegree();
+        System.out.println("size" + sortedNode.size());
+        coloring();
     }
 
-    private void sortDegree(){
+    private static void sortDescendingDegree(){
 
+        int arrayLength = degree.length;
+        int max;
+        int maxIndex;
+        for(int i = 1; i < arrayLength; i++){
+            max = 0;
+            maxIndex = 0;
+            for(int j = 1; j < arrayLength; j++){
+                if(degree[j] > max){
+                    max = degree[j];
+                    maxIndex = j;
+                }
+            }
+            if(max != 0 && maxIndex != 0){
+                if(i==1){
+                    maxDegree = max;
+                }
+                sortedNode.add(maxIndex);
+                degree[maxIndex]=0;
+            }
+        }
+        System.out.println("sorted: " + sortedNode);
     }
 
     private void uniformRandomOrdering(){
         getDegree();
+        sortRandomDegree();
+        coloring();
+    }
+
+    private void sortRandomDegree(){
+        int arrayLength = degree.length;
+        int random;
+        for(int i=0; i<arrayLength; i++){
+            boolean notAllZero = false;
+            for(int j=0; j<arrayLength; j++){
+                if(degree[j] != 0){
+                    notAllZero = true;
+                }
+            }
+            random = (int)(Math.random()*arrayLength);
+            while(degree[random]==0 && notAllZero){
+                random = (int)(Math.random()*arrayLength);
+            }
+            if(degree[random] != 0){
+                sortedNode.add(random);
+                degree[random] = 0;
+            }
+        }
+        System.out.println("sorted: " + sortedNode);
     }
 
     private void largestLastOrdering(){
         getDegree();
     }
 
+    private void coloring(){
+        color = new int[sortedNode.size()];
+        Arrays.fill(color,0);
+        int arrayListSize = sortedNode.size();
+
+        int[][] coloringForEachNode = new int[arrayListSize][maxDegree+2];
+        /*
+         * colour the first vertex color 1
+         */
+        int colorNumber = 1;
+        color[0] = colorNumber;
+
+        /*
+         * color all the vertices not connected to the coloured vertex, with the same color
+         */
+
+        for(int i=1; i<arrayListSize; i++){
+            for(int j=0; j<i; j++){
+                if(checkBox[sortedNode.get(i)][sortedNode.get(j)]==1){
+                    coloringForEachNode[i][color[j]] = 1;
+                }
+            }
+            boolean isFirst = true;
+            for(int k=1; k<maxDegree+2; k++){
+                if(isFirst && coloringForEachNode[i][k] == 0){
+                    color[i] = k;
+                    isFirst = false;
+                }
+            }
+        }
+    }
     /**
      *  This function prints out required output
      */
@@ -349,6 +429,7 @@ public class NewMethod{
         System.out.println("We have total " + T + " pair-wise course conflicts");
         System.out.println("Adjacency list of distinct course conflicts " + E);
         System.out.println("Pointer for each course I " + Arrays.toString(P));
+        System.out.println("color: "+Arrays.toString(color));
     }
 
     public static void main(String[] args){
