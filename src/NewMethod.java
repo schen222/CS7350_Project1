@@ -303,7 +303,7 @@ public class NewMethod{
         String smallest = "SMALLEST";
         String powell = "POWELL";
         String random = "RANDOM";
-        String myChoice = "LARGEST";
+        String myChoice = "ORIGIN";
         if(smallest.equals(ordering)){
             smallestLastOrdering();
         }
@@ -314,12 +314,20 @@ public class NewMethod{
             uniformRandomOrdering();
         }
         else if(myChoice.equals(ordering)){
-            largestLastOrdering();
+            originalOrdering();
         }
     }
 
     private void smallestLastOrdering(){
         getDegree();
+        maxDegree = 0;
+        for(int i=1; i<degree.length; i++){
+            if(degree[i]>maxDegree){
+                maxDegree = degree[i];
+            }
+        }
+        int[][] coloringForEachNode = new int[numOfferedCourse][maxDegree+2];
+
     }
 
     private void welshPowellOrdering(){
@@ -386,8 +394,23 @@ public class NewMethod{
         System.out.println("sorted: " + sortedNode);
     }
 
-    private void largestLastOrdering(){
+    private void originalOrdering(){
         getDegree();
+        sortOriginalOrdering();
+        coloring();
+    }
+
+    private void sortOriginalOrdering(){
+        int arrayLength = degree.length;
+        maxDegree = 0;
+        for(int i=0; i<arrayLength; i++){
+            if(degree[i] != 0){
+                if(degree[i] > maxDegree){
+                    maxDegree = degree[i];
+                }
+                sortedNode.add(i);
+            }
+        }
     }
 
     private void coloring(){

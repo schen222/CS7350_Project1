@@ -41,7 +41,7 @@ public class Course {
         distribution = "";
         validDistributionInput = new String[]{"UNIFORM","SKEWED","4-TIERED","NORMAL"};
         ordering = "";
-        validOrderingInput = new String[]{"SMALLEST","POWELL","RANDOM","LARGEST"};
+        validOrderingInput = new String[]{"SMALLEST","POWELL","RANDOM","ORIGIN"};
     }
 
     private void input(){
